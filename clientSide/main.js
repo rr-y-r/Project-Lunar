@@ -1,7 +1,7 @@
 require.config({
     urlArgs: '_t=' + (+new Date()),
     paths: {
-        'text'          : './assets/lib/require/require.text'
+        'text'          : './lib/require/require.text'
     }
 });
 

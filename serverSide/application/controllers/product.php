@@ -1,90 +1,119 @@
 <?php
-class Product extends CI_controller{
+
+class Product extends CI_Controller {
     
-    var $limit      =   5;
-    var $pageShow   =   2;
-        
-    function product(){
+    function Product(){
         parent::__construct();
-        $this->load->model('Mproduct','',TRUE);
+        $this->load->model('Product_model');
     }
 
-    public function index(){
-        //intentionally leaves blank
-    }
-    
-    public function count(){
-        echo $this->Mproduct->count();
-    }
-    
-    public function insert(){
-        $data            =   json_decode(file_get_contents('php://input'));
-        echo $this->Mproduct->insert($data);
-    }
-    
-    public function delete($id){
-        echo $this->Mproduct->delete($id); //delete id from 'JSON' data
-    }
-    
-    public function getbyid($id){
-        echo json_encode($this->Mproduct->getbyid($id));
-    }
-    public  function update(){
-        $data           =   json_decode(file_get_contents("php://input"));
-        echo  $this->Mproduct->update($data);
+    function index(){
+        $this->load->view('site');
     }
 
-    public function get_all_bypaging(){
-        $uri_segment    =   3;
-        $offset         =   $this->uri->segment($uri_segment);
-        $page           =   isset($offset) ? $offset : 1;
-        $shuttle        =   $this->Mproduct->get_all();
-        $totaldata      =   count($shuttle);
-        $pagetotal      =   ceil($totaldata / $this->limit);
-        $pageshow       =   $pagetotal > $this->pageshow ? $this->pageshow : $pagetotal;
-        $step           =   floor($pageshow / 2);
-        $pagestart      =   ($page - $step) > 1 ? $page - $step : 1;
-        $pageend        =   ($page + $step) < $pagetotal ? $page + $step : $pagetotal;
-        if($pageend - $pagestart + 1 < $pageshow) {
-            $pageend    =   $pagestart + $pageshow - 1;
-            $pageend    =   $pageend > $pagetotal ? $pagetotal : $pageend;
-
-            if($pageend - $pagestart + 1 < $pageshow){
-                $pagestart = $pageend - $pageshow - 1;
-                $pagestart = $pagestart > 1 ? $pagestart : 1;
-            }
-        }
-        if($pageend - $pagestart + 1 > $pageshow) {
-            if($pageend == $pagetotal){
-                $pagestart = $pageend - $pageshow + 1;
-            }
-        }
-
-        $pagination = array();
-        for($i=$pagestart; $i<=$pageend; $i++){
-            $pagination[] = $i;
-        }
-
-        $data = array_slice($shuttle, ($page-1) * $this->limit, $this->limit);
-        $vData = array(
-            'page'          => $page,
-            'pagefirst'     => 1,
-            'pagelast'      => $pagetotal,
-            'pagination'    => $pagination,
-            'data'          => $data,
-        );
-        echo  json_encode($vData);
-
+    function insert(){
+        $username = $this->session->userdata('username');
+        $data=json_decode(file_get_contents("php://input"));
+        $bindData = $this->Product_model->getBindData($username);
+        $storeId =  $bindData[0]['storeid'];
+        $userId = $bindData[0]['userid'];
+        echo $this->Product_model->bindProductData($data,$userId,$storeId);
+        //echo $this->Product_model->insert($data, $username);
     }
 
-    public function get_groupbyStore(){
-        $sID = $this->uri->segment(3);
-        $product = $this->Mproduct->get_groupbyStore($sID);
-        echo  json_encode($product);
+    function update(){
+        $data=json_decode(file_get_contents("php://input"));
+        echo $this->Product_model->update($data);
     }
+
+    function delete($id){
+        echo $this->Product_model->delete($id);
+    }
+
     public function get(){
-        $product = $this->Mproduct->get();
-        echo  json_encode($product);
+        $Product = $this->Product_model->getAll();
+        echo json_encode($Product);
+    }
+    
+    public function getbinded(){
+        $username = $this->session->userdata('username');
+        $store_id  = $this->Product_model->getBindedStore($username);
+        $storeData = $store_id[0]['storeid'];
+        $data = $this->Product_model->getProductByStore($storeData);
+        echo json_encode($data);
     }
 
+    public function getbyid($id){
+        echo json_encode($this->Product_model->getbyid($id));
+    }
+
+    function doUpload(){
+        $config['upload_path'] = './uploads/';
+        $config['allowed_types'] = 'gif|jpg|png';
+        $config['max_size']	= '100';
+        $config['max_width']  = '1024';
+        $config['max_height']  = '768';
+
+        $this->load->library('upload', $config);
+
+        if ( ! $this->upload->do_upload()){
+            $error = array('error' => $this->upload->display_errors());
+
+            $this->load->view('upload_form', $error);
+        }else{
+            $data = array('upload_data' => $this->upload->data());
+
+            $this->load->view('upload_success', $data);
+        }
+    }
+    
+    public function upload_file(){
+        $status = "";
+        $msg = "";
+        $file_element_name = 'productImg';
+
+        if (empty($_POST['title'])){
+            $status = "error";
+            $msg = "Please enter a title";
+        }
+
+        if ($status != "error"){
+            $config['upload_path'] = './files/';
+            $config['allowed_types'] = 'gif|jpg|png|doc|txt';
+            $config['max_size'] = 1024 * 8;
+            $config['encrypt_name'] = TRUE;
+
+            $this->load->library('upload', $config);
+
+            if (!$this->upload->do_upload($file_element_name))
+            {
+                $status = 'error';
+                $msg = $this->upload->display_errors('', '');
+            }
+            else
+            {
+                $data = $this->upload->data();
+                $file_id = $this->Product_model->insert_file($data['file_name'], $_POST['title']);
+                if($file_id)
+                {
+                    $status = "success";
+                    $msg = "File successfully uploaded";
+                }
+                else
+                {
+                    unlink($data['full_path']);
+                    $status = "error";
+                    $msg = "Something went wrong when saving the file, please try again.";
+                }
+            }
+            @unlink($_FILES[$file_element_name]);
+        }
+        echo json_encode(array('status' => $status, 'msg' => $msg));
+    }
+    
+    public function files(){
+
+        echo json_encode($this->Product_model->get_files());
+    }
 }
+?>

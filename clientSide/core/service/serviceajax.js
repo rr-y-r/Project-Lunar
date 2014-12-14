@@ -10,17 +10,17 @@ define([
                     params += arguments[i]+'/';
                 }
                 return $http.get(app['baseUrlServer'] + params)
-                    .then(function(response){
-                        if (response.data) {
-                            return response.data;
-                        } else {
-                            // invalid response
-                            return $q.reject(response.data);
-                        }
-                    },function(response){
+                .then(function(response){
+                    if (response.data) {
+                        return response.data;
+                    } else {
                         // invalid response
                         return $q.reject(response.data);
-                    });
+                    }
+                },function(response){
+                    // invalid response
+                    return $q.reject(response.data);
+                });
             },
 
             posDataToServer : function(){
@@ -35,19 +35,18 @@ define([
                     }
                 }
                 return  $http.post(app['baseUrlServer'] + params, data)
-                    .then(function(response){
-                        if (response.data) {
-                            return response.data;
-                        } else {
-                            // invalid response
-                            return $q.reject(response.data);
-                        }
-                    },function(response){
+                .then(function(response){
+                    if (response.data) {
+                        return response.data;
+                    } else {
                         // invalid response
                         return $q.reject(response.data);
-                    });
+                    }
+                },function(response){
+                    // invalid response
+                    return $q.reject(response.data);
+                });
             },
-
         }
     }]);
 

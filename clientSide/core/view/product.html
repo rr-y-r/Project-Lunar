@@ -1,95 +1,196 @@
-<div ng-include src="'./core/view/header.html'"></div>
-<div growl></div>
-<div class="container">
-    <div class="row">
-        <div class="span12">
-            <div class="row">
-                <div class="span12">
-                    <table class="table table-condensed ">
-                        <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Store</th>
-                            <th data-ng-if="level[0]['level'] == 'admin'">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr ng-repeat="v in shuttle" class="repeat-item">
-                            <td>{{v.name}}</td>
-                            <td>{{v.sID}}</td>
-                            <td style="width: 10%;" data-ng-if="level[0]['level'] == 'admin'">
-                                <button  ng-click="modalJadual('Edit',v.pID)" class="btn btn-info" type="button">Edit</button>
-                            </td>
-                            <td style="width: 10%;" data-ng-if="level[0]['level'] == 'admin'">
-                                <button  ng-click="delete(v.pID)" class="btn btn-info" type="button">Delete</button>
-                            </td>
-                        </tr>
+<!--
+<h1>Upload File</h1>
+<form method="post" action="" id="upload_file">
+    <label for="title">Title</label>
+    <input type="text" name="title" id="title" value="" ng-model="data.title"/>
 
-                        </tbody>
-                    </table>
+    <label for="userfile">File</label>
+    <input type="file" name="productImg" id="productImg" size="20" ng-model="data.productImg" />
 
-                </div>
+    <input type="submit" name="submit" id="submit" ng-click="uploadFile(data)" />
+</form>
+<h2>Files</h2>
+<div id="pimg"></div>
+-->
+
+<!-- input type="text" ng-model="data.name" -->
+<button type="submit" class="btn btn-primary btn-lg" data-ng-click="productModal('add')">Daftar Produk Baru</button>
+<table class="table table-condensed ">
+    <thead>
+        <tr>
+            <th>id</th>
+            <th>name</th>
+            <th>category</th>
+            <th>note</th>
+            <th>quantity</th>
+            <th>price</th>
+            <th>status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="i in product" class="repeat-item">
+            <td>{{i.id}}</td>
+            <td>{{i.name}}</td>
+            <td>{{i.category_id}}</td>
+            <td>{{i.note}}</td>
+            <td>{{i.quantity}}</td>
+            <td>{{i.price}}</td>
+            <td>{{i.status}}</td>
+            <td>
+                <button  ng-click="deleteProduct(i.id)" class="btn btn-info" type="button">Delete</button>
+            </td>
+            <td>
+                <button  ng-click="modalProduct('update',i.id)" class="btn btn-info" type="button">update</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="modal {{modaloption}}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" ng-click="closeModal()" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">{{action}}</h4>
             </div>
-
+            <div class="modal-body">
+                <form role="form">
+                    <div class="productForm {productForm}}">
+                        <div class="form-group">
+                            <label>name</label>
+                            <input type="text" class="form-control" name="name" ng-model="data.name">
+                        </div>
+                        <div class="form-group">
+                            <label>category_id</label>
+                            <input type="text" class="form-control" name="category_id" ng-model="data.category_id">
+                        </div>
+                        
+                    
+                    <div class="form-group">
+                        <div class="fileForm {{fileForm}}">
+                            <h2 class="lead">Upload Gambar</h2>
+                            <!-- The fileinput-button span is used to style the file input field as button -->
+                            <span class="btn btn-success fileinput-button">
+                                <i class="glyphicon glyphicon-plus"></i>
+                                <span>Add files...</span>
+                                <input id="fileupload" type="file" name="files[]" multiple>
+                            </span>
+                            <!-- The global progress bar -->
+                            <div id="progress" class="progress">
+                                <div class="progress-bar progress-bar-success"></div>
+                            </div>
+                            <!-- The container for the uploaded files -->
+                            <div id="files" class="files"></div>
+                        </div>
+                    </div>
+                    
+                 
+            <div class="modal-footer">
+                <button type="submit" ng-click="saveProduct(data,add)" class="btn btn-primary">Next</button>
+            </div>
+                    </form>
         </div>
     </div>
 </div>
-<div class="modal {{modaloption}} " data-ng-init="modaloption='hide'">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" data-ng-click="closeModal()" aria-hidden="true"></button>
-        <h3 style="color: #040404">{{action}} Data</h3>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-           Store..
-        </form>
-
-    </div>
-    <div class="modal-footer">
-        <button type="button"  data-ng-click="closeModal()" class="btn">Close</button>
-        <button ng-click="save(data,action)" class="btn btn-primary">Save changes</button>
-    </div>
-</div>
-
-<footer class="win-ui-dark win-commandlayout navbar-fixed-bottom">
-    <div class="container">
-        <div class="row">
-
-            <div class="span4 align-left">
-                <a href="./index.html#!/home"class="win-command">
-                    <span class="win-commandicon win-commandring icon-home"></span>
-                    <span class="win-label">Home</span>
-                </a>
-                <hr class="win-command">
-                <button class="win-command" ng-click="logModal('Add')" data-ng-if="level[0]['level'] == 'admin'">
-                    <span class="win-commandicon win-commandring icon-plus-5"></span>
-                    <span class="win-label">Add</span>
-                </button>
-            </div>
-            <!--pagination if needed
-            <div class="span8 align-right">
-                <button class="win-command" ng-click="gotoPage(pagefirst)" ng-disabled="page <= pagefirst">
-                    <span class="win-commandicon win-commandring   icon-first"></span>
-                    <span class="win-label">First</span>
-                </button>
-                <button class="win-command" ng-click="gotoPage(page-1)" ng-disabled="page <= pagefirst">
-                    <span class="win-commandicon win-commandring icon-previous"></span>
-                    <span class="win-label">Previous</span>
-                </button>
-                <button type="button" class="win-command" ng-repeat="p in pagination" ng-click="gotoPage(p)">
-                    <span class="win-commandicon win-commandring icon-grid"></span>
-                    <span class="win-label">Page {{p}}</span>
-                </button>
-                <button class="win-command" ng-click="gotoPage('berikutnya')" ng-disabled="page >= pagelast">
-                    <span class="win-commandicon win-commandring icon-next"></span>
-                    <span class="win-label">Next</span>
-                </button>
-                <button class="win-command" ng-click="gotoPage(pagelast)" ng-disabled="page >= pagelast">
-                    <span class="win-commandicon win-commandring  icon-last"></span>
-                    <span class="win-label">Last</span>
-                </button>
-            </div>
-        end of pagination-->
-        </div>
-    </div>
-</footer>
+<script>
+    $(function () {
+    'use strict';
+    // Change this to the location of your server-side upload handler:
+    var url = 'http://localhost/shop_ver-a/serverside/index.php/fileupload',
+        uploadButton = $('<button/>')
+            .addClass('btn btn-primary')
+            .prop('disabled', true)
+            .text('Processing...')
+            .on('click', function () {
+                var $this = $(this),
+                    data = $this.data();
+                $this
+                    .off('click')
+                    .text('Abort')
+                    .on('click', function () {
+                        $this.remove();
+                        data.abort();
+                    });
+                data.submit().always(function () {
+                    $this.remove();
+                });
+            });
+    $('#fileupload').fileupload({
+        url: url,
+        dataType: 'json',
+        autoUpload: false,
+        acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+        maxFileSize: 5000000, // 5 MB
+        // Enable image resizing, except for Android and Opera,
+        // which actually support image resizing, but fail to
+        // send Blob objects via XHR requests:
+        disableImageResize: /Android(?!.*Chrome)|Opera/
+            .test(window.navigator.userAgent),
+        previewMaxWidth: 100,
+        previewMaxHeight: 100,
+        previewCrop: true
+    }).on('fileuploadsubmit', function (e, data) {
+        data.formData = data.context.find(':input').serializeArray();
+    }).on('fileuploadadd', function (e, data) {
+        data.context = $('<div/>').appendTo('#files');
+        $.each(data.files, function (index, file) {
+            var node = $('<p/>')
+                    .append($('<span/>').text(file.name));
+            if (!index) {
+                node
+                    .append('<br>')
+                    .append(uploadButton.clone(true).data(data));
+            }
+            node.appendTo(data.context);
+        });
+    }).on('fileuploadprocessalways', function (e, data) {
+        var index = data.index,
+            file = data.files[index],
+            node = $(data.context.children()[index]);
+        if (file.preview) {
+            node
+                .prepend('<br>')
+                .prepend(file.preview);
+        }
+        if (file.error) {
+            node
+                .append('<br>')
+                .append($('<span class="text-danger"/>').text(file.error));
+        }
+        if (index + 1 === data.files.length) {
+            data.context.find('button')
+                .text('Upload')
+                .prop('disabled', !!data.files.error);
+        }
+    }).on('fileuploadprogressall', function (e, data) {
+        var progress = parseInt(data.loaded / data.total * 100, 10);
+        $('#progress .progress-bar').css(
+            'width',
+            progress + '%'
+        );
+    }).on('fileuploaddone', function (e, data) {
+        $.each(data.result.files, function (index, file) {
+            if (file.url) {
+                var link = $('<a>')
+                    .attr('target', '_blank')
+                    .prop('href', file.url);
+                $(data.context.children()[index])
+                    .wrap(link);
+            } else if (file.error) {
+                var error = $('<span class="text-danger"/>').text(file.error);
+                $(data.context.children()[index])
+                    .append('<br>')
+                    .append(error);
+            }
+        });
+    }).on('fileuploadfail', function (e, data) {
+        $.each(data.files, function (index) {
+            var error = $('<span class="text-danger"/>').text('File upload failed.');
+            $(data.context.children()[index])
+                .append('<br>')
+                .append(error);
+        });
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+});
+    </script>

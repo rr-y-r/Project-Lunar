@@ -1,13 +1,13 @@
 {
-  "name"       : "Project Lunar",
-  "description": "Ordering Process Information System.",
-  "copyright"  : "(c) 2013 Ryan Rynaldo",
+  "name"       : "Patarana",
+  "description": "Desktop app Patarana.",
+  "copyright"  : "(c) 2014 Ryan Rynaldo",
   "version"    : "0.1",
   "main"       : "index.html",
 
 
   "window": {
-    "icon"      : "#",
+    "icon"      : "logo.png",
     "toolbar"   : false,
     "width"     : 1366,
     "height"    : 648,
